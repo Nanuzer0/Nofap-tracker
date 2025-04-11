@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>History</title>
+</head>
+<body>
+    <h1>Prev. History</h1>
+    <table border="1">
+        <tr>
+            <th>Day</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Length(days)</th>
+            <th>Attempt Number</th>
+        </tr>
+        {% for day in list %}
+        <tr>
+            <td>{{ day.day }}</td>
+            <td>{{ day.date }}</td>
+            {% if day.status == True %}
+                <td>Ongoing</td>
+            {% else %}
+                <td>No streak</td>
+            {% endif %}
+            {% if day.streak_days != None %}
+                <td>{{ day.streak_days }}</td>
+            {% else %}
+                <td></td>
+            {% endif %}
+            {% if day.attempt_number != None %}
+                <td>{{ day.attempt_number }}</td>
+            {% else %}
+                <td></td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </table>
+    <p></p>
+    <a href="/">Back to Home</a>
+</body>
+</html>
