@@ -111,6 +111,8 @@ if __name__ =="__main__":
         with app.app_context():
             db.create_all()
             today_date = str(Streak.query.order_by(Streak.day.desc()).first().date)
+            if today_date == None:
+                today_date = str(py_datetime.datetime.today().date())
         if not date_checker.is_alive():
             date_checker.start()
     app.run(debug=Debug_mode, host = IP_address, port = Port)
