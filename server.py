@@ -110,9 +110,11 @@ if __name__ =="__main__":
     if os.environ.get('WERKZEUG_RUN_MAIN') == 'true' or not Debug_mode:
         with app.app_context():
             db.create_all()
-            today_date = str(Streak.query.order_by(Streak.day.desc()).first().date)
-            if today_date == None:
+            today = Streak.query.order_by(Streak.day.desc()).first()
+            if today == None:
                 today_date = str(py_datetime.datetime.today().date())
+            else:
+                today_date = str(today.date)
         if not date_checker.is_alive():
             date_checker.start()
     app.run(debug=Debug_mode, host = IP_address, port = Port)
