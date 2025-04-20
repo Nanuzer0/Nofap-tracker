@@ -113,6 +113,7 @@ if __name__ =="__main__":
             today = Streak.query.order_by(Streak.day.desc()).first()
             if today == None:
                 today_date = str(py_datetime.datetime.today().date())
+                update_database()
             else:
                 today_date = str(today.date)
         if not date_checker.is_alive():
