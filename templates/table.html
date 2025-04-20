@@ -12,6 +12,7 @@
             <th>Status</th>
             <th>Length(days)</th>
             <th>Attempt Number</th>
+            <th>Days until new record</th>
         </tr>
         {% for day in list %}
         <tr>
@@ -32,6 +33,16 @@
             {% else %}
                 <td></td>
             {% endif %}
+            {% if day.streak_days != None %}
+                {% if day.streak_days < record %}
+                    <td>{{ record - day.streak_days }}</td>
+                {% else %}
+                    <td></td>
+                {% endif %}
+            {% else %}
+                <td></td>
+            {% endif %}
+                
         </tr>
         {% endfor %}
     </table>

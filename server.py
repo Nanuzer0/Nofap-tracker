@@ -34,6 +34,13 @@ class Streak(db.Model):
         self.attempt_number = attempt_number
         self.streak_started = streak_started
 
+class Record(db.Model):
+    id = db.Column("id", db.Integer, primary_key = True)
+    days = db.Column("days", db.Integer)
+
+    def __init__(self, days: int):
+        self.days = days
+
 @app.route("/", methods = ["POST", "GET"])
 def home():
     today = Streak.query.filter_by(date = py_datetime.datetime.today().date()).first()
@@ -50,12 +57,12 @@ def home():
                 db.session.commit()
 
     #desc = str(today.day) + " " + str(today.date) + " " + str(today.status) + " " + str(today.streak_days) + " " + str(today.attempt_number) + " " + str(today.streak_started)
-    return render_template("index.html", streak = today.streak_days, status = today.status, started = today.streak_started)
+    return render_template("index.html", streak = today.streak_days, status = today.status, started = today.streak_started, record = Record.query.first().days)
 
 @app.route("/history")
 def history():
     streaks = Streak.query.all()
-    return render_template("table.html", list = streaks)
+    return render_template("table.html", list = streaks, record = Record.query.first().days)
 
 @app.route("/test")
 def test():
@@ -68,6 +75,8 @@ def update_database():
         if (yesterday == None):
             today = Streak(1, py_datetime.datetime.today().date(), status = False, streak_started = False)
             db.session.add(today)
+            record = Record(0)
+            db.session.add(record)
             db.session.commit()
             return
         if (yesterday.status):
@@ -79,6 +88,9 @@ def update_database():
                 today = Streak(yesterday.day + 1, py_datetime.datetime.today().date(), True, 0, Streak.query.order_by(Streak.attempt_number.desc()).first().attempt_number + 1, True)
             else:
                 today = Streak(yesterday.day + 1, py_datetime.datetime.today().date(), False, streak_started = False)
+        record = Record.query.first()
+        if today.streak_days > record.days:
+            record.days = today.streak_days
         db.session.add(today)
         db.session.commit()
 
