@@ -85,7 +85,10 @@ def update_database():
             today = Streak(yesterday.day + 1, py_datetime.datetime.today().date(), True, yesterday.streak_days, yesterday.attempt_number, True)
         else:
             if (yesterday.streak_started):
-                today = Streak(yesterday.day + 1, py_datetime.datetime.today().date(), True, 0, Streak.query.order_by(Streak.attempt_number.desc()).first().attempt_number + 1, True)
+                previous_attempt = Streak.query.order_by(Streak.attempt_number.desc()).first().attempt_number
+                if previous_attempt == None:
+                    previous_attempt = 0
+                today = Streak(yesterday.day + 1, py_datetime.datetime.today().date(), True, 0, previous_attempt + 1, True)
             else:
                 today = Streak(yesterday.day + 1, py_datetime.datetime.today().date(), False, streak_started = False)
         record = Record.query.first()
@@ -110,7 +113,12 @@ if __name__ =="__main__":
     if os.environ.get('WERKZEUG_RUN_MAIN') == 'true' or not Debug_mode:
         with app.app_context():
             db.create_all()
-            today_date = str(Streak.query.order_by(Streak.day.desc()).first().date)
+            today = Streak.query.order_by(Streak.day.desc()).first()
+            if today == None:
+                today_date = str(py_datetime.datetime.today().date())
+                update_database()
+            else:
+                today_date = str(today.date)
         if not date_checker.is_alive():
             date_checker.start()
     app.run(debug=Debug_mode, host = IP_address, port = Port)
