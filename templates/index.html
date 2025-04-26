@@ -20,11 +20,13 @@
         {% if started == False %}
             <p>You have no ongoing streak</p>
             <form action="#" method="post">
-                <input type="submit" value="Start new streak">
+                <input type="submit" value="Start new streak"><br>
                 <input type="hidden" name="streakstatus" value="Start">
                 <label for="mode">Mode:</label><br>
                 <input type="radio" id="normal" name="mode" value="Normal" checked>
+                <label for="normal">Normal</label><br>
                 <input type="radio" id="hard" name="mode" value="Hard">
+                <label for="hard">Hard</label><br>
             </form>
         {% else %}
             <p>Your streak will start tomorrow</p>
