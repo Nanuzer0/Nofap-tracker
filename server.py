@@ -96,7 +96,8 @@ def update_database():
             db.session.add(record)
             db.session.commit()
             return
-        
+        streak_days = None
+        attempt_number = None
         day = yesterday.day + 1
         date = py_datetime.datetime.today().date()
         # status
@@ -119,8 +120,11 @@ def update_database():
         previous_attempt = Streak.query.order_by(Streak.attempt_number.desc()).first().attempt_number
         if previous_attempt == None:
             previous_attempt = 0
-        if not yesterday.status and status:
-            attempt_number = previous_attempt + 1
+        if status:
+            if not yesterday.status:
+                attempt_number = previous_attempt + 1
+            else:
+                attempt_number = previous_attempt
         # streak_started
         streak_started = yesterday.streak_started
         # mode
