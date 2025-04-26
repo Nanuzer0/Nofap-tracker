@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 import datetime as py_datetime
 import time, threading
 import os
+import sys
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -97,17 +98,12 @@ def update_database():
         db.session.add(today)
         db.session.commit()
 
-def date_checker_thread():
-    global today_date
+def date_checker_thread(today_date: str):
     while True:
         if (today_date != str(py_datetime.datetime.today().date())):
             today_date = str(py_datetime.datetime.today().date())
             update_database()
         time.sleep(0.1)
-
-date_checker = threading.Thread(target=date_checker_thread)
-date_checker.daemon = True # This will make the thread exit when the main program exits
-today_date = ""
 
 if __name__ =="__main__":
     if os.environ.get('WERKZEUG_RUN_MAIN') == 'true' or not Debug_mode:
@@ -119,6 +115,8 @@ if __name__ =="__main__":
                 update_database()
             else:
                 today_date = str(today.date)
+        date_checker = threading.Thread(target=date_checker_thread, args=(today_date, ))
+        date_checker.daemon = True # This will make the thread exit when the main program exits
         if not date_checker.is_alive():
             date_checker.start()
     app.run(debug=Debug_mode, host = IP_address, port = Port)
