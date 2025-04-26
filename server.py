@@ -142,6 +142,7 @@ def update_database():
 def date_checker_thread(today_date: str):
     while True:
         if (today_date != str(py_datetime.datetime.today().date())):
+            today_date = str(py_datetime.datetime.today().date())
             update_database()
         time.sleep(0.1)
 
