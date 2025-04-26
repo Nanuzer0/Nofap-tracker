@@ -1,9 +1,11 @@
 from flask import Flask, redirect, url_for, render_template, request, abort
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 import datetime as py_datetime
 import time, threading
 import os
 import sys
+import enum
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -18,6 +20,11 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db.sqlite3"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
+
+class Mode(enum.Enum):
+    Normal = 1
+    Hard = 2
 
 class Streak(db.Model):
     day = db.Column("day", db.Integer, primary_key = True)
@@ -26,14 +33,16 @@ class Streak(db.Model):
     streak_days = db.Column("Days_without_fapping", db.Integer)
     attempt_number = db.Column("Attempt_number", db.Integer)
     streak_started = db.Column("New_streak_attempt_started", db.Boolean)
+    mode = db.Column("Mode", db.Enum(Mode))
 
-    def __init__(self, day: int, date: py_datetime.datetime, status: bool, streak_days = None, attempt_number = None, streak_started = None):
+    def __init__(self, day: int, date: py_datetime.datetime, status: bool, streak_days = None, attempt_number = None, streak_started = None, mode = Mode.Normal):
         self.day = day
         self.date = date
         self.status = status
         self.streak_days = streak_days
         self.attempt_number = attempt_number
         self.streak_started = streak_started
+        self.mode = mode
 
 class Record(db.Model):
     id = db.Column("id", db.Integer, primary_key = True)
@@ -49,16 +58,22 @@ def home():
         match request.form["streakstatus"]:
             case "Start":
                 today.streak_started = True
+                match request.form["mode"]:
+                    case "Normal":
+                        today.mode = Mode.Normal
+                    case "Hard":
+                        today.mode = Mode.Hard
                 db.session.commit()
             case "End":
                 today.status = False
                 today.streak_days = None
                 today.attempt_number = None
                 today.streak_started = False
+                today.mode = None
                 db.session.commit()
 
     #desc = str(today.day) + " " + str(today.date) + " " + str(today.status) + " " + str(today.streak_days) + " " + str(today.attempt_number) + " " + str(today.streak_started)
-    return render_template("index.html", streak = today.streak_days, status = today.status, started = today.streak_started, record = Record.query.first().days)
+    return render_template("index.html", streak = today.streak_days, status = today.status, started = today.streak_started, record = Record.query.first().days, mode = today.mode.name)
 
 @app.route("/history")
 def history():
@@ -73,6 +88,7 @@ def test():
 def update_database():
     with app.app_context():
         yesterday = Streak.query.order_by(Streak.day.desc()).first()
+        # check if db is empty
         if (yesterday == None):
             today = Streak(1, py_datetime.datetime.today().date(), status = False, streak_started = False)
             db.session.add(today)
@@ -80,22 +96,43 @@ def update_database():
             db.session.add(record)
             db.session.commit()
             return
+        
+        day = yesterday.day + 1
+        date = py_datetime.datetime.today().date()
+        # status
         if (yesterday.status):
             yesterday.streak_days += 1
             db.session.commit()
-            today = Streak(yesterday.day + 1, py_datetime.datetime.today().date(), True, yesterday.streak_days, yesterday.attempt_number, True)
+            status = True
         else:
             if (yesterday.streak_started):
-                previous_attempt = Streak.query.order_by(Streak.attempt_number.desc()).first().attempt_number
-                if previous_attempt == None:
-                    previous_attempt = 0
-                today = Streak(yesterday.day + 1, py_datetime.datetime.today().date(), True, 0, previous_attempt + 1, True)
+                status = True
             else:
-                today = Streak(yesterday.day + 1, py_datetime.datetime.today().date(), False, streak_started = False)
+                status = False
+        # streak_days
+        if status:
+            if yesterday.status:
+                streak_days = yesterday.streak_days
+            else:
+                streak_days = 0
+        # attempt_number
+        previous_attempt = Streak.query.order_by(Streak.attempt_number.desc()).first().attempt_number
+        if previous_attempt == None:
+            previous_attempt = 0
+        if not yesterday.status and status:
+            attempt_number = previous_attempt + 1
+        # streak_started
+        streak_started = yesterday.streak_started
+        # mode
+        mode = yesterday.mode
+
+        today = Streak(day, date, status, streak_days, attempt_number, streak_started, mode)
+        db.session.add(today)
+        
         record = Record.query.first()
         if today.streak_days > record.days:
             record.days = today.streak_days
-        db.session.add(today)
+
         db.session.commit()
 
 def date_checker_thread(today_date: str):

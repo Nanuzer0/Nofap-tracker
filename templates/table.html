@@ -13,6 +13,7 @@
             <th>Length(days)</th>
             <th>Attempt Number</th>
             <th>Days until new record</th>
+            <th>Mode</th>
         </tr>
         {% for day in list %}
         <tr>
@@ -42,7 +43,14 @@
             {% else %}
                 <td></td>
             {% endif %}
-                
+            <!-- <td>{{ day.mode }}</td>     -->
+            {% if day.mode.value == 1 %}
+                <td>Normal</td>
+            {% elif day.mode.value == 2 %}
+                <td>Hard</td>
+            {% elif day.mode == None %}
+                <td></td>
+            {% endif %}
         </tr>
         {% endfor %}
     </table>
