@@ -22,6 +22,9 @@
             <form action="#" method="post">
                 <input type="submit" value="Start new streak">
                 <input type="hidden" name="streakstatus" value="Start">
+                <label for="mode">Mode:</label><br>
+                <input type="radio" id="normal" name="mode" value="Normal" checked>
+                <input type="radio" id="hard" name="mode" value="Hard">
             </form>
         {% else %}
             <p>Your streak will start tomorrow</p>
@@ -30,11 +33,12 @@
     <!-- <p>{{full}}</p> -->
     <!-- <p>{{test}}</p> -->
     <p>
-
         Your record is {{record}} days
-
+        <br><br>
+        Current mode: <span id="mode">{{mode}}</span>
     </p>
     <a href="/history">History</a>
 <script src = "../static/timer.js"></script>
+<script src = "../static/color.js"></script>
 </body>
 </html>
