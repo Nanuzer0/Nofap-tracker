@@ -1,9 +1,11 @@
 from flask import Flask, redirect, url_for, render_template, request, abort
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 import datetime as py_datetime
 import time, threading
 import os
 import sys
+import enum
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -18,6 +20,11 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db.sqlite3"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
+
+class Mode(enum.Enum):
+    Normal = 1
+    Hard = 2
 
 class Streak(db.Model):
     day = db.Column("day", db.Integer, primary_key = True)
@@ -26,8 +33,10 @@ class Streak(db.Model):
     streak_days = db.Column("Days_without_fapping", db.Integer)
     attempt_number = db.Column("Attempt_number", db.Integer)
     streak_started = db.Column("New_streak_attempt_started", db.Boolean)
+    mode = db.Column("Mode", db.Enum(Mode))
 
-    def __init__(self, day: int, date: py_datetime.datetime, status: bool, streak_days = None, attempt_number = None, streak_started = None):
+    def __init__(self, day: int, date: py_datetime.datetime, status: bool, streak_days = None, attempt_number = None, streak_started = None, mode = Mode.Normal):
+        self.mode = mode
         self.day = day
         self.date = date
         self.status = status
