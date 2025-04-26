@@ -44,12 +44,10 @@
                 <td></td>
             {% endif %}
             <!-- <td>{{ day.mode }}</td>     -->
-            {% if day.mode.value == 1 %}
-                <td>Normal</td>
-            {% elif day.mode.value == 2 %}
-                <td>Hard</td>
-            {% elif day.mode == None %}
+            {% if day.mode == None %}
                 <td></td>
+            {% else %}
+                <td>{{ day.mode.name }}</td>
             {% endif %}
         </tr>
         {% endfor %}
