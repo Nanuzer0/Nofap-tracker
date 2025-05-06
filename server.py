@@ -92,6 +92,11 @@ def test():
     #abort(403)
     return str(request.remote_addr)
 
+@app.route("/records")
+def records():
+    records = Record.query.all()
+    return render_template("records.html", list = records)
+
 def update_database():
     with app.app_context():
         yesterday = Streak.query.order_by(Streak.day.desc()).first()
