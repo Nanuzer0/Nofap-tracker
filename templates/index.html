@@ -36,6 +36,9 @@
     <!-- <p>{{test}}</p> -->
     <p>
         Your record is {{record}} days
+        {% if record.day == datetime.today().day %}
+            <span> (New record!)</span>
+        {% endif %}
         <br><br>
         Current mode: <span id="mode">{{mode}}</span>
     </p>

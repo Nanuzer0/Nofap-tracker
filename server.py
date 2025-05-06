@@ -47,8 +47,9 @@ class Streak(db.Model):
 class Record(db.Model):
     id = db.Column("id", db.Integer, primary_key = True)
     days = db.Column("days", db.Integer)
+    day = db.Column("day", db.Date)
 
-    def __init__(self, days: int):
+    def __init__(self, days: int, day: py_datetime.datetime):
         self.days = days
 
 @app.route("/", methods = ["POST", "GET"])
@@ -77,12 +78,14 @@ def home():
         t_mode = today.mode.name
     else:
         t_mode = ""
-    return render_template("index.html", streak = today.streak_days, status = today.status, started = today.streak_started, record = Record.query.first().days, mode = t_mode)
+    s_record = Record.query.order_by(Record.days.desc()).first().days
+    return render_template("index.html", streak = today.streak_days, status = today.status, started = today.streak_started, record = s_record, mode = t_mode)
 
 @app.route("/history")
 def history():
     streaks = Streak.query.all()
-    return render_template("table.html", list = streaks, record = Record.query.first().days)
+    s_record = Record.query.order_by(Record.days.desc()).first().days
+    return render_template("table.html", list = streaks, record = s_record)
 
 @app.route("/test")
 def test():
@@ -137,9 +140,10 @@ def update_database():
         today = Streak(day, date, status, streak_days, attempt_number, streak_started, mode)
         db.session.add(today)
         
-        record = Record.query.first()
+        record = Record.query.order_by(Record.days.desc()).first().days
         if today.streak_days > record.days:
-            record.days = today.streak_days
+            newrecord = Record(today.streak_days, today.date)
+            db.session.add(newrecord)
 
         db.session.commit()
 
