@@ -36,7 +36,7 @@
     <!-- <p>{{test}}</p> -->
     <p>
         Your record is {{record}} days
-        {% if record.day == datetime.today().day %}
+        {% if record.day == py_datetime.today().day %}
             <span> (New record!)</span>
         {% endif %}
         <br><br>
