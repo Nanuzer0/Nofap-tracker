@@ -73,7 +73,11 @@ def home():
                 db.session.commit()
 
     #desc = str(today.day) + " " + str(today.date) + " " + str(today.status) + " " + str(today.streak_days) + " " + str(today.attempt_number) + " " + str(today.streak_started)
-    return render_template("index.html", streak = today.streak_days, status = today.status, started = today.streak_started, record = Record.query.first().days, mode = today.mode.name)
+    if today.mode != None:
+        t_mode = today.mode.name
+    else:
+        t_mode = ""
+    return render_template("index.html", streak = today.streak_days, status = today.status, started = today.streak_started, record = Record.query.first().days, mode = t_mode)
 
 @app.route("/history")
 def history():
