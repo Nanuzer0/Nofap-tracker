@@ -79,7 +79,7 @@ def home():
     else:
         t_mode = ""
     s_record = Record.query.order_by(Record.days.desc()).first().days
-    return render_template("index.html", streak = today.streak_days, status = today.status, started = today.streak_started, record = s_record, mode = t_mode)
+    return render_template("index.html", streak = today.streak_days, status = today.status, started = today.streak_started, record = s_record, mode = t_mode, today = str(py_datetime.datetime.today().date()))
 
 @app.route("/history")
 def history():
