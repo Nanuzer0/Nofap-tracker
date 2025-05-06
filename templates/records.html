@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Records</title>
+</head>
+<body>
+    <h1>Records</h1>
+    <table border="1">
+        <tr>
+            <th>Days</th>
+            <th>Date</th>
+        </tr>
+        {% for record in list %}
+        <tr>
+            <td>{{ record.days }}</td>
+            <td>{{ record.day }}</td>
+        </tr>
+        {% endfor %}    
+    </table>
+    <br>
+    <a href="/">Back to Home</a>
+</body>
+</html>
