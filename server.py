@@ -146,7 +146,7 @@ def update_database():
         db.session.add(today)
         
         record = Record.query.order_by(Record.days.desc()).first().days
-        if today.streak_days > record.days:
+        if today.streak_days > record:
             newrecord = Record(today.streak_days, today.date)
             db.session.add(newrecord)
 
